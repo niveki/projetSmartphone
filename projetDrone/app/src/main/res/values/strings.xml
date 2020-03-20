@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ProjetDrone</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="text_home">Accueil</string>
+    <string name="text_one">Automatique</string>
+    <string name="text_two">Manuelle</string>
+    <string name="text_three">WayPoint</string>
+</resources>
