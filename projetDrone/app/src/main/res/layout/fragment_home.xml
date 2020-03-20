@@ -5,12 +5,47 @@
     android:layout_height="match_parent"
     tools:context="com.example.Drone.Fragment_home">
 
-    <TextView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/text_home"
-        android:gravity="center"
-        android:textSize="20dp"
-        android:textColor="#000"/>
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/back_home"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:alpha="1"
+            />
+
+        <LinearLayout
+            android:id="@+id/cadreMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100px"
+            android:orientation="vertical"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/cadre"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Bonjour, \n\n\t\t\t\t Ce projet a pour but de créer une application, \n celle ci va vous permettre de controler un drone\n marin, elle se compose de 3 vues :"
+                android:textColor="#fff"
+                android:paddingTop="30px"
+                android:paddingLeft="20px"
+                android:paddingRight="20px"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="\n\t\t\t- Vue 1 : simulation d'un drone.\n\t\t\t- Vue 2 : pilotage du drone en mode manuel.\n\t\t\t- Vue 3 : mode parcours programmé."
+                android:textColor="#fff"
+                android:paddingBottom="30px"
+                android:paddingLeft="20px"
+                android:paddingRight="20px"/>/>
+        </LinearLayout>
+
+    </RelativeLayout>
 
 </FrameLayout>
