@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DroneProject</string>
+    <string name="text_home">Home</string>
+    <string name="text_one">Automatic</string>
+    <string name="text_three">WayPoint</string>
+    <string name="text_two">Manual</string>
+    <string name="text_home_desc1">Hello,\n\n\t\t\t\tThis project aims to create an application,\n this will allow you to control a drone\n marine, it consists of 3 views:</string>
+    <string name="text_home_desc2">\n\t\t\t- View 1 : simulation of a drone.\n\t\t\t- View 2 : piloting the drone in manual mode.\n\t\t\t- View 3 : mode programmed route by WayPoints.</string>
+</resources>
