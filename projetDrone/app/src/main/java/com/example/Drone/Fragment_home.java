@@ -13,12 +13,13 @@ import com.example.Drone.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Fragment_home extends Fragment {
+public class Fragment_home extends Fragment{
 
 
     public Fragment_home() {
         // Required empty public constructor
     }
+
 
 
     @Override

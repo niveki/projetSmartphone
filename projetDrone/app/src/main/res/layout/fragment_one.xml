@@ -5,12 +5,68 @@
     android:layout_height="match_parent"
     tools:context="com.example.Drone.Fragment_one">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/text_one"
-        android:gravity="center"
-        android:textSize="20dp"
-        android:textColor="#000"/>
 
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:id="@+id/frag1_map"
+            tools:context=".MapsActivity"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_weight="2"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/frag1_speed"
+            android:layout_marginTop="20px"
+            android:layout_marginLeft="15px"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/frag1_lon"
+            android:layout_marginLeft="15px"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/frag1_lat"
+            android:layout_marginLeft="15px"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+                <Button
+                    android:layout_width="0px"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/frag1_boutton_start"
+                    android:layout_weight="1"
+                    />
+                <Button
+                    android:layout_width="0px"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/frag1_boutton_setting"
+                    android:layout_weight="1"
+                    />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/frag1_mes"
+                android:textAlignment="center"
+                />
+        </LinearLayout>
+    </TableLayout>
 </FrameLayout>

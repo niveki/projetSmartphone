@@ -7,5 +7,5 @@
     <string name="text_two">Manuel</string>
     <string name="text_three">Parcours</string>
     <string name="text_home_desc1">Bonjour,\n\n\t\t\t\tCe projet a pour but de créer une application,\n celle ci va vous permettre de controler un drone\n marin, elle se compose de 3 vues :</string>
-    <string name="text_home_desc2">\n\t\t\t- Vue 1 : simulation d\'un drone.\n\t\t\t- Vue 2 : pilotage du drone en mode manuel.\n\t\t\t- Vue 3 : mode parcours programmé par des WayPoints.</string>
+    <string name="text_home_desc2">\n\t\t\t- Vue 1 : simulation d\'un drone.\n\t\t\t- Vue 2 : pilotage du drone en mode manuel.\n\t\t\t- Vue 3 : mode parcours programmé (WayPoints).</string>
 </resources>
