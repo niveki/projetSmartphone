@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,12 +30,14 @@ import java.util.Locale;
  */
 public class Fragment_one extends Fragment implements OnMapReadyCallback {
 
-    private TextView textSpeed, textLat, textLon, textMes, textIPFrag1, textPortFrag1, textRefreshFrag1, textIPSetting, textPortSetting, textRefreshSetting;
+    private TextView textSpeed, textLat, textLon, textMes, textIPFrag1, textPortFrag1, textRefreshFrag1, textIPSetting, textPortSetting;
+    private Spinner spiRefresh;
     private Button buttonStart, buttonSetting;
     private GoogleMap mMap;
-    private String currentLang = Locale.getDefault().getLanguage(), conf, quit, setting, refreh, errorTitle, errorMessage, adress;
+    private String currentLang = Locale.getDefault().getLanguage(), conf, quit, setting, textSettingMess, errorTitle, errorMessage, refreh, adress;
+    private ClientTCP clientTCP;
     public Fragment_one() {
-        // Required empty public constructor
+        clientTCP=new ClientTCP(this);
     }
 
 
@@ -89,27 +92,19 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
                     errorMessage="Wrong ip format xxx.xxx.xxx.xxx !";
                 };
                 View viewSetting = inflater.inflate(R.layout.activity_setting, null);
-                /*
+                //get
                 textIPSetting = viewSetting.findViewById(R.id.setting_set_IP);
-                textIPSetting.setText(getIP());
-
                 textPortSetting = viewSetting.findViewById(R.id.setting_set_port);
-                textPortSetting.setText(getPort());
-
-                //textRefreshSetting=viewSetting.findViewById(R.id.setting_spin);
-                //textRefreshSetting.setText(getRefreshTime());
-
-
-                Spinner listTemps = viewSetting.findViewById(R.id.setting_spin);
-                TextView textTitleIP=viewSetting.findViewById(R.id.setting_text_IP);
-                textTitleIP.setText(adress);
-                TextView textRefresh=viewSetting.findViewById(R.id.setting_text_refresh);
-                textRefresh.setText(refreh);
-                ArrayList a = new ArrayList();
-                a.add(1);
-                a.add(5);
-                a.add(10);
-                a.add(15);*/
+                spiRefresh=viewSetting.findViewById(R.id.setting_spin);
+                //set
+                textIPSetting.setText(clientTCP.getIP());
+                textPortSetting.setText(String.valueOf(clientTCP.getPORT()));
+                final ArrayList choice = new ArrayList();
+                choice.add(1);
+                choice.add(5);
+                choice.add(10);
+                choice.add(15);
+                spiRefresh.setSelection(choice.indexOf(clientTCP.getREFRESH()));
 
                 //popup
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -122,11 +117,22 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         EditText textIP = ((AlertDialog) dialogInterface).findViewById(R.id.setting_set_IP);
-                        EditText textPort=((AlertDialog) dialogInterface).findViewById(R.id.setting_set_port);
-                        Spinner spinTps=((AlertDialog) dialogInterface).findViewById(R.id.setting_spin);
+                        EditText textPort = ((AlertDialog) dialogInterface).findViewById(R.id.setting_set_port);
+                        Spinner spinTps = ((AlertDialog) dialogInterface).findViewById(R.id.setting_spin);
                         /*modifParam(textIP.getText().toString(), textPort.getText().toString(),
                                 spinTps.getSelectedItem().toString().split(" ")[0]);*/
-                        if(textIP.getText().toString().matches("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
+                        if (textIP.getText().toString().equals(clientTCP.getIP()) &&
+                                textPort.getText().toString().equals(String.valueOf((clientTCP.getPORT()))) &&
+                                spinTps.getSelectedItem().toString().split(" ")[0].equals(String.valueOf(clientTCP.getREFRESH()))){
+                            builder.setNegativeButton(quit, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+                            if(currentLang.equals("fr")){textSettingMess="Paramètres identiques";}else{textSettingMess="Same parameters";}
+                            Toast.makeText(getContext(),textSettingMess,Toast.LENGTH_LONG).show();
+                        }else if(textIP.getText().toString().matches("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
                                 "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
                                 "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
                                 "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")){
@@ -158,9 +164,10 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
                 builder.show();
             }
         });
-        setIPFrag1("127.0.0.1");
-        setPortFrag1("55555");
-        setRafraichissementFrag1("5", currentLang);
+        //textIPFrag1.setText(clientTCP.getIP());
+        setIPFrag1(clientTCP.getIP());
+        setPortFrag1(clientTCP.getPORT());
+        setRafraichissementFrag1(clientTCP.getREFRESH(), currentLang);
         setMessage(currentLang);
         // création de la carte
         ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.frag1_map)).getMapAsync(this);
@@ -169,21 +176,24 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     }
 
     // Méthodes de textes
-    public void setSpeed(String s, String l){if(l.equals("fr")){textSpeed.setText("Vitesse: "+s+" Km/h");}else {textSpeed.setText("speed: "+s+" Km/h");}}
+    public void setSpeed(String s, String l){if(l.equals("fr")){textSpeed.setText("Vitesse: "+s+" Km/h");}else{textSpeed.setText("speed: "+s+" Km/h");}}
     public void setLatitude(String s){textLat.setText("Latitude: "+s);}
     public void setLongitude(String s){textLon.setText("Longitude: "+s);}
     public void setIPFrag1(String val){textIPFrag1.setText("IP: "+val);}
-    public void setPortFrag1(String val){textPortFrag1.setText("Port: "+val);}
-    public void setRafraichissementFrag1(String val, String l){if(l.equals("fr")){textRefreshFrag1.setText("Rafraichissement: "+val+"s");}else {textRefreshFrag1.setText("refresh: "+val+"s");}}
-    public void setIPSetting(String val){textIPSetting.setText(val);}
-    public void setPortSetting(String val){textPortSetting.setText(val);}
+    public void setPortFrag1(int val){textPortFrag1.setText("Port: "+val);}
+    public void setRafraichissementFrag1(int val, String l){if(l.equals("fr")){textRefreshFrag1.setText("Rafraichissement: "+val+"s");}else {textRefreshFrag1.setText("refresh: "+val+"s");}}
     public void setMessage(String l){if(l.equals("fr")){textMes.setText("Non connecté.");}else {textMes.setText("Not connect.");}}
     public void modifParam(String ip,String port,String time){
-        setIPFrag1(ip);
-        setPortFrag1(port);
-        setRafraichissementFrag1(time,currentLang);
-        setIPSetting(ip);
-        Toast.makeText(getContext(),"Paramètre IP modifié",Toast.LENGTH_LONG).show();
+        clientTCP.setIP(ip);
+        if(!port.equals("")){
+            clientTCP.setPORT(Integer.parseInt(port));
+        }
+        clientTCP.setREFRESH(Integer.parseInt(time));
+        setIPFrag1(clientTCP.getIP());
+        setPortFrag1(clientTCP.getPORT());
+        setRafraichissementFrag1(clientTCP.getREFRESH(), currentLang);
+        if(currentLang.equals("fr")){textSettingMess="Paramètres modifiés";}else{textSettingMess="Modified parameters";}
+        Toast.makeText(getContext(),textSettingMess,Toast.LENGTH_LONG).show();
     }
 
     // Création de la carte sur le port des Minimes
@@ -200,3 +210,5 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     }
 
 }
+
+// LOG Log.d("niveki", String.valueOf(clientTCP.getREFRESH()));
