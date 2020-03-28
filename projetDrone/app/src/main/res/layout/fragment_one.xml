@@ -42,20 +42,68 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="150px"
             >
-                <Button
-                    android:layout_width="0px"
+<!--
+            <ImageButton
+                android:src="@drawable/go"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:id="@+id/frag1_action"
+                android:background="#FAFAFA"
+                android:adjustViewBounds="true"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="25px"
+                />
+            <ImageButton
+                android:src="@drawable/setting40"
+                android:layout_height="match_parent"
+                android:layout_width="0px"
+                android:id="@+id/frag1_setting"
+                android:background="#FAFAFA"
+                android:adjustViewBounds="true"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="25px"
+                />
+-->
+            <Button
+                android:layout_width="75px"
+                android:layout_height="match_parent"
+                android:id="@+id/frag1_boutton_start"
+                android:layout_weight="1"
+                android:layout_marginLeft="75px"
+                />
+
+            <Button
+                android:id="@+id/frag1_boutton_setting"
+                android:layout_width="75px"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:layout_marginLeft="30px">
+
+                <TextView
+                    android:id="@+id/frag1_ip"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/frag1_boutton_start"
-                    android:layout_weight="1"
-                    />
-                <Button
-                    android:layout_width="0px"
+                    android:textSize="35px"/>
+                <TextView
+                    android:id="@+id/frag1_port"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/frag1_boutton_setting"
-                    android:layout_weight="1"
-                    />
+                    android:textSize="35px"/>
+
+                <TextView
+                    android:id="@+id/frag1_refresh"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="35px"/>
+            </LinearLayout>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
