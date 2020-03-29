@@ -20,7 +20,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -35,9 +34,9 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     private Button buttonStart, buttonSetting;
     private GoogleMap mMap;
     private String currentLang = Locale.getDefault().getLanguage(), conf, quit, setting, textSettingMess, errorTitle, errorMessage, refreh, adress, stateCo;
-    private ClientTCP clientTCP;
+    private ClientNMEA clientTCP;
     public Fragment_one() {
-        clientTCP=new ClientTCP(this);
+        clientTCP=new ClientNMEA(this);
     }
 
 
