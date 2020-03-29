@@ -34,7 +34,7 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     private Spinner spiRefresh;
     private Button buttonStart, buttonSetting;
     private GoogleMap mMap;
-    private String currentLang = Locale.getDefault().getLanguage(), conf, quit, setting, textSettingMess, errorTitle, errorMessage, refreh, adress;
+    private String currentLang = Locale.getDefault().getLanguage(), conf, quit, setting, textSettingMess, errorTitle, errorMessage, refreh, adress, stateCo;
     private ClientTCP clientTCP;
     public Fragment_one() {
         clientTCP=new ClientTCP(this);
@@ -44,8 +44,7 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-
+        // Init de la vue
         final View view =  inflater.inflate(R.layout.fragment_one, container, false);
         //getters
         textSpeed = view.findViewById(R.id.frag1_speed);
@@ -68,8 +67,17 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
             buttonSetting.setText("SETTING");
             buttonStart.setText("START");
         }
-
-
+        // gestion bouton start/stop
+        buttonStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(buttonStart.getText().equals("DÉBUT") || buttonStart.getText().equals("START")){
+                    start();
+                }else{
+                    stop();
+                }
+            }
+        });
         // gestion bouton setting
         buttonSetting.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -168,13 +176,31 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
         setIPFrag1(clientTCP.getIP());
         setPortFrag1(clientTCP.getPORT());
         setRafraichissementFrag1(clientTCP.getREFRESH(), currentLang);
-        setMessage(currentLang);
+        setMessage(clientTCP.getBoolConnected(), currentLang);
         // création de la carte
         ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.frag1_map)).getMapAsync(this);
         //création de la vue
         return view;
     }
-
+    //Méthode start
+    public void start(){
+        buttonStart.setText("STOP");
+        setLog(String.valueOf(clientTCP.getBoolRun()));
+        clientTCP.setRun();
+        setLog(String.valueOf(clientTCP.getBoolRun()));
+        clientTCP.setConnected();
+        setMessage(clientTCP.getBoolConnected(), currentLang);
+    }
+    //Méthode stop
+    public void stop(){
+        if(currentLang.equals("fr")){buttonStart.setText("DÉBUT");}else {buttonStart.setText("START");}
+        clientTCP.setRun();
+        setSpeed("NA", currentLang);
+        setLatitude("NA");
+        setLongitude("NA");
+        clientTCP.setConnected();
+        setMessage(clientTCP.getBoolConnected(), currentLang);
+    }
     // Méthodes de textes
     public void setSpeed(String s, String l){if(l.equals("fr")){textSpeed.setText("Vitesse: "+s+" Km/h");}else{textSpeed.setText("speed: "+s+" Km/h");}}
     public void setLatitude(String s){textLat.setText("Latitude: "+s);}
@@ -182,7 +208,8 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     public void setIPFrag1(String val){textIPFrag1.setText("IP: "+val);}
     public void setPortFrag1(int val){textPortFrag1.setText("Port: "+val);}
     public void setRafraichissementFrag1(int val, String l){if(l.equals("fr")){textRefreshFrag1.setText("Rafraichissement: "+val+"s");}else {textRefreshFrag1.setText("refresh: "+val+"s");}}
-    public void setMessage(String l){if(l.equals("fr")){textMes.setText("Non connecté.");}else {textMes.setText("Not connect.");}}
+    public void setMessage(boolean boolCo, String l){if(l.equals("fr")){if(boolCo){stateCo="Connecté.";}else{stateCo="Non connecté.";}}else{if(boolCo){stateCo="Connected.";}else{stateCo="Not connect.";}}textMes.setText(stateCo);}
+    public void setLog(String v){Log.d("niveki", v);}
     public void modifParam(String ip,String port,String time){
         clientTCP.setIP(ip);
         if(!port.equals("")){
