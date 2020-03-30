@@ -20,10 +20,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,9 +35,9 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     private Button buttonStart, buttonSetting;
     private GoogleMap mMap;
     private String currentLang = Locale.getDefault().getLanguage(), conf, quit, setting, textSettingMess, errorTitle, errorMessage, refreh, adress, stateCo;
-    private ClientTCP clientTCP;
+    private ClientNMEA clientTCP;
     public Fragment_one() {
-        clientTCP=new ClientTCP(this);
+        clientTCP=new ClientNMEA(this);
     }
 
 
@@ -72,7 +72,13 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 if(buttonStart.getText().equals("DÉBUT") || buttonStart.getText().equals("START")){
-                    start();
+                    try {
+                        start();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }else{
                     stop();
                 }
@@ -183,24 +189,44 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
         return view;
     }
     //Méthode start
-    public void start(){
+    public void start() throws ExecutionException, InterruptedException {
         buttonStart.setText("STOP");
-        setLog(String.valueOf(clientTCP.getBoolRun()));
-        clientTCP.setRun();
-        setLog(String.valueOf(clientTCP.getBoolRun()));
+        //clientTCP.doInBackground();
+        //setLog(String.valueOf(clientTCP.doInBackground()));
         clientTCP.setConnected();
-        setMessage(clientTCP.getBoolConnected(), currentLang);
+        //while (clientTCP.getBoolConnected()) {
+            clientTCP.run();
+        //}
+        //setLog("start");
+        //clientTCP.setRun();
+        //setLog(String.valueOf(clientTCP.getBoolRun()));
+        //clientTCP.setConnected();
+        //setMessage(clientTCP.getBoolConnected(), currentLang);
+
     }
     //Méthode stop
     public void stop(){
         if(currentLang.equals("fr")){buttonStart.setText("DÉBUT");}else {buttonStart.setText("START");}
-        clientTCP.setRun();
+        clientTCP.setConnected();
+        //setLog("stop");
         setSpeed("NA", currentLang);
         setLatitude("NA");
         setLongitude("NA");
-        clientTCP.setConnected();
-        setMessage(clientTCP.getBoolConnected(), currentLang);
+        //clientTCP.setConnected();
+        //setMessage(clientTCP.getBoolConnected(), currentLang);
     }
+
+    //methode trame et maps
+    public void data(ArrayList a){
+        setLatitude(a.get(0).toString());
+        setLongitude(a.get(1).toString());
+        setSpeed(a.get(2).toString(), currentLang);
+        setLog("lat: "+a.get(0).toString());
+        setLog("lon: "+a.get(1).toString());
+        setLog("vitesse: "+a.get(2).toString());
+        setLog("-------------");
+    }
+
     // Méthodes de textes
     public void setSpeed(String s, String l){if(l.equals("fr")){textSpeed.setText("Vitesse: "+s+" Km/h");}else{textSpeed.setText("speed: "+s+" Km/h");}}
     public void setLatitude(String s){textLat.setText("Latitude: "+s);}
