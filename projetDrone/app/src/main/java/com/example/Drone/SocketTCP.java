@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 
 public class SocketTCP extends AsyncTask<String, Void, String> {
-    Socket socket;
+    private Socket socket;
     private BufferedReader br;
     private String IP;
     private String port;

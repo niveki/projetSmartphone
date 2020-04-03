@@ -37,11 +37,11 @@ import java.util.concurrent.ExecutionException;
  */
 public class Fragment_one extends Fragment implements OnMapReadyCallback {
 
-    private TextView textSpeed, textLat, textLon, textMes, textIPFrag1, textPortFrag1, textRefreshFrag1, textIPSetting, textPortSetting;
+    private TextView tvSpeed, tvLat, tvLon, tvMes, tvIPFrag1, tvPortFrag1, tvRefreshFrag1, tvIPSetting, tvPortSetting, tvRefreshSetting;
     private Spinner spiRefresh;
     private Button buttonStart, buttonSetting;
     private GoogleMap mMap;
-    private String currentLang = Locale.getDefault().getLanguage(), conf, quit, setting, textSettingMess, errorTitle, errorMessage, refreh, adress, stateCo, tSpeed;
+    private String currentLang, buttonTextSetting, buttonTextStart, textSettingTitle, textSettingIpAdress, textSettingrefresh, textButtonConf, textButtonCanceled, textErrorTitle, textErrorMessage, textErrorMessSame, textOkMessage, textRefresh, textStateCoSuc, textStateCoNotSuc, textSnippetSpeed;
     private ClientNMEA clientTCP;
     private PolylineOptions cap;
     private MarkerOptions boat;
@@ -56,29 +56,27 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        currentLang = Locale.getDefault().getLanguage();
+        setLang(currentLang);
         // Init de la vue
         final View view =  inflater.inflate(R.layout.fragment_one, container, false);
         //getters
-        textSpeed = null;//view.findViewById(R.id.frag1_speed);
-        textLat = null;//view.findViewById(R.id.frag1_lat);
-        textLon = null;//view.findViewById(R.id.frag1_lon);
-        textMes = view.findViewById(R.id.frag1_mes);
+        tvSpeed = null;//view.findViewById(R.id.frag1_speed);
+        tvLat = null;//view.findViewById(R.id.frag1_lat);
+        tvLon = null;//view.findViewById(R.id.frag1_lon);
+        tvMes = view.findViewById(R.id.frag1_mes);
         buttonSetting = view.findViewById(R.id.frag1_boutton_setting);
         buttonStart = view.findViewById(R.id.frag1_boutton_start);
-        textIPFrag1 = view.findViewById(R.id.frag1_ip);
-        textPortFrag1 = view.findViewById(R.id.frag1_port);
-        textRefreshFrag1 = view.findViewById(R.id.frag1_refresh);
+        tvIPFrag1 = view.findViewById(R.id.frag1_ip);
+        tvPortFrag1 = view.findViewById(R.id.frag1_port);
+        tvRefreshFrag1 = view.findViewById(R.id.frag1_refresh);
         //init des textes
-        //setSpeed("NA", currentLang);
+        //setSpeed("NA");
         //setLatitude("NA");
         //setLongitude("NA");
-        if(currentLang.equals("fr")){
-            buttonSetting.setText("RÉGLAGE");
-            buttonStart.setText("DÉBUT");
-        }else{
-            buttonSetting.setText("SETTING");
-            buttonStart.setText("START");
-        }
+        buttonSetting.setText(buttonTextSetting);
+        buttonStart.setText(buttonTextStart);
+
         // gestion bouton start/stop
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,31 +98,21 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
         buttonSetting.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                if(currentLang.equals("fr")){
-                    adress="Addresse IP: ";
-                    conf="Confirmer";
-                    quit="Annuler";
-                    setting="Réglage";
-                    refreh="Temps de rafraichissement: ";
-                    errorTitle="Erreur paramètre";
-                    errorMessage="Format IP non valide xxx.xxx.xxx.xxx !";
-                }else{
-                    adress="Adress IP: ";
-                    conf="Confirm";
-                    quit="Canceled";
-                    setting="Setting";
-                    refreh="Refresh time: ";
-                    errorTitle="Parameter error";
-                    errorMessage="Wrong ip format xxx.xxx.xxx.xxx !";
-                };
                 View viewSetting = inflater.inflate(R.layout.activity_setting, null);
+                //set text textView
+                tvIPSetting=viewSetting.findViewById(R.id.setting_text_IP);
+                tvIPSetting.setText(textSettingIpAdress);
+                tvPortSetting=viewSetting.findViewById(R.id.setting_text_port);
+                tvPortSetting.setText("Port: ");
+                tvRefreshSetting=viewSetting.findViewById(R.id.setting_text_refresh);
+                tvRefreshSetting.setText(textSettingrefresh);
                 //get
-                textIPSetting = viewSetting.findViewById(R.id.setting_set_IP);
-                textPortSetting = viewSetting.findViewById(R.id.setting_set_port);
+                tvIPSetting = viewSetting.findViewById(R.id.setting_set_IP);
+                tvPortSetting = viewSetting.findViewById(R.id.setting_set_port);
                 spiRefresh=viewSetting.findViewById(R.id.setting_spin);
                 //set
-                textIPSetting.setText(clientTCP.getIP());
-                textPortSetting.setText(String.valueOf(clientTCP.getPORT()));
+                tvIPSetting.setText(clientTCP.getIP());
+                tvPortSetting.setText(String.valueOf(clientTCP.getPORT()));
                 final ArrayList choice = new ArrayList();
                 choice.add(1);
                 choice.add(5);
@@ -134,11 +122,11 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
 
                 //popup
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle(setting);
+                builder.setTitle(textSettingTitle);
                 builder.setView(viewSetting);
 
                 //bouton Confirm
-                builder.setPositiveButton(conf, new DialogInterface.OnClickListener(){
+                builder.setPositiveButton(textButtonConf, new DialogInterface.OnClickListener(){
 
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -150,14 +138,14 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
                         if (textIP.getText().toString().equals(clientTCP.getIP()) &&
                                 textPort.getText().toString().equals(String.valueOf((clientTCP.getPORT()))) &&
                                 spinTps.getSelectedItem().toString().split(" ")[0].equals(String.valueOf(clientTCP.getREFRESH()))){
-                            builder.setNegativeButton(quit, new DialogInterface.OnClickListener() {
+                            builder.setNegativeButton(textButtonCanceled, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
 
                                 }
                             });
-                            if(currentLang.equals("fr")){textSettingMess="Paramètres identiques";}else{textSettingMess="Same parameters";}
-                            Toast.makeText(getContext(),textSettingMess,Toast.LENGTH_LONG).show();
+                            //if(currentLang.equals("fr")){textSettingMess="Paramètres identiques";}else{textSettingMess="Same parameters";}
+                            Toast.makeText(getContext(),textErrorMessSame,Toast.LENGTH_LONG).show();
                         }else if(textIP.getText().toString().matches("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
                                 "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
                                 "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
@@ -168,9 +156,9 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
                         }else{
                             //erreur de ip saisie
                             final AlertDialog.Builder error = new AlertDialog.Builder(getContext());
-                            error.setTitle(errorTitle);
-                            error.setMessage(errorMessage);
-                            error.setNegativeButton(quit, new DialogInterface.OnClickListener() {
+                            error.setTitle(textErrorTitle);
+                            error.setMessage(textErrorMessage);
+                            error.setNegativeButton(textButtonCanceled, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -181,7 +169,7 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
                     }
                 });
                 //boutton cancel
-                builder.setNegativeButton(quit, new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(textButtonCanceled, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
@@ -193,8 +181,8 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
         //textIPFrag1.setText(clientTCP.getIP());
         setIPFrag1(clientTCP.getIP());
         setPortFrag1(clientTCP.getPORT());
-        setRafraichissementFrag1(clientTCP.getREFRESH(), currentLang);
-        setMessage(clientTCP.getBoolConnected(), currentLang);
+        setRafraichissementFrag1(clientTCP.getREFRESH());
+        setMessage(clientTCP.getBoolConnected());
         // création de la carte
         ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.frag1_map)).getMapAsync(this);
         //création de la vue
@@ -203,32 +191,14 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     //Méthode start
     public void start() throws ExecutionException, InterruptedException {
         buttonStart.setText("STOP");
-
         mMap.clear();
-        //clientTCP.doInBackground();
-        //setLog(String.valueOf(clientTCP.doInBackground()));
         clientTCP.setConnected();
-        //while (clientTCP.getBoolConnected()) {
-            clientTCP.run();
-        //}
-        //setLog("start");
-        //clientTCP.setRun();
-        //setLog(String.valueOf(clientTCP.getBoolRun()));
-        //clientTCP.setConnected();
-        //setMessage(clientTCP.getBoolConnected(), currentLang);
-
+        clientTCP.run();
     }
     //Méthode stop
     public void stop(){
-        if(currentLang.equals("fr")){buttonStart.setText("DÉBUT");}else {buttonStart.setText("START");}
+        buttonStart.setText(buttonTextStart);
         clientTCP.setConnected();
-        //setMessage(clientTCP.getBoolConnected(), currentLang);
-        //setLog("stop");
-        //setSpeed("NA", currentLang);
-        //setLatitude("NA");
-        //setLongitude("NA");
-        //clientTCP.setConnected();
-        //setMessage(clientTCP.getBoolConnected(), currentLang);
     }
 
     //methode trame et maps
@@ -244,7 +214,7 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
         LatLng curentLoc = new LatLng(lat, lon);
         //setLatitude(String.valueOf(lat));
         //setLongitude(String.valueOf(lon));
-        //setSpeed(a.get(2).toString(), currentLang);
+        //setSpeed(a.get(2).toString());
         //setLog("lat: "+lat);
         //setLog("lon: "+lon);
         //setLog("vitesse: "+a.get(2).toString());
@@ -287,15 +257,17 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     }
 
     // Méthodes de textes
-    public void setSpeed(String s, String l){if(l.equals("fr")){textSpeed.setText("Vitesse: "+s+" Km/h");}else{textSpeed.setText("speed: "+s+" Km/h");}}
-    public void setLatitude(String s){textLat.setText("Latitude: "+s);}
-    public void setLongitude(String s){textLon.setText("Longitude: "+s);}
-    public void setIPFrag1(String val){textIPFrag1.setText("IP: "+val);}
-    public void setPortFrag1(int val){textPortFrag1.setText("Port: "+val);}
-    public void setRafraichissementFrag1(int val, String l){if(l.equals("fr")){textRefreshFrag1.setText("Rafraichissement: "+val+"s");}else {textRefreshFrag1.setText("refresh: "+val+"s");}}
-    public String getSnippet(String l, String lat, String lon, String speed, String angle ){if (l.equals("fr"))tSpeed="- Vitesse: ";else tSpeed="- Speed: ";String a ="- Latitude: "+lat+"\n- Longitude: "+lon+"\n"+tSpeed+speed+" Km/h\n- Angle: "+angle+" °";return a;}
-    public void setMessage(boolean boolCo, String l){if(l.equals("fr")){if(boolCo){stateCo="Connecté.";}else{stateCo="Non connecté.";}}else{if(boolCo){stateCo="Connected.";}else{stateCo="Not connect.";}}textMes.setText(stateCo);}
-    public void setError(String l){if (l.equals("fr"))textMes.setText("Pas de serveur !");else textMes.setText("No server !");}
+/*
+    public void setSpeed(String s, String l){if(l.equals("fr")){tvSpeed.setText("Vitesse: "+s+" Km/h");}else{tvSpeed.setText("speed: "+s+" Km/h");}}
+    public void setLatitude(String s){tvLat.setText("Latitude: "+s);}
+    public void setLongitude(String s){tvLon.setText("Longitude: "+s);}
+
+ */
+    public void setIPFrag1(String val){tvIPFrag1.setText("IP: "+val);}
+    public void setPortFrag1(int val){tvPortFrag1.setText("Port: "+val);}
+    public void setRafraichissementFrag1(int val){tvRefreshFrag1.setText(textRefresh+val+"s");}
+    public String getSnippet(String l, String lat, String lon, String speed, String angle ){String a ="- Latitude: "+lat+"\n- Longitude: "+lon+"\n"+textSnippetSpeed+speed+" Km/h\n- Angle: "+angle+" °";return a;}
+    public void setMessage(boolean boolCo){if(boolCo)tvMes.setText(textStateCoSuc);else tvMes.setText(textStateCoNotSuc);}
     public void setLog(String v){Log.d("niveki", v);}
     public void modifParam(String ip,String port,String time){
         clientTCP.setIP(ip);
@@ -305,11 +277,44 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
         clientTCP.setREFRESH(Integer.parseInt(time));
         setIPFrag1(clientTCP.getIP());
         setPortFrag1(clientTCP.getPORT());
-        setRafraichissementFrag1(clientTCP.getREFRESH(), currentLang);
-        if(currentLang.equals("fr")){textSettingMess="Paramètres modifiés";}else{textSettingMess="Modified parameters";}
-        Toast.makeText(getContext(),textSettingMess,Toast.LENGTH_LONG).show();
+        setRafraichissementFrag1(clientTCP.getREFRESH());
+        Toast.makeText(getContext(),textOkMessage,Toast.LENGTH_LONG).show();
     }
-
+    public void setLang(String l){
+        if(l.equals("fr")){
+            buttonTextSetting="RÉGLAGE";
+            buttonTextStart="DÉBUT";
+            textSettingTitle="Réglage";
+            textSettingIpAdress="Addresse IP: ";
+            textSettingrefresh="Temps de rafraichissement: ";
+            textButtonConf="Confirmer";
+            textButtonCanceled="Annuler";
+            textErrorTitle="Erreur paramètre";
+            textErrorMessage="Format IP non valide xxx.xxx.xxx.xxx !";
+            textErrorMessSame="Paramètres identiques";
+            textOkMessage="Paramètres modifiés";
+            textRefresh="Rafraichissement: ";
+            textStateCoSuc="Connecté.";
+            textStateCoNotSuc="Non connecté.";
+            textSnippetSpeed="- Vitesse: ";
+        }else{
+            buttonTextSetting="SETTING";
+            buttonTextStart="START";
+            textSettingTitle="Setting";
+            textSettingIpAdress="Adress IP: ";
+            textSettingrefresh="Refresh time: ";
+            textButtonConf="Confirm";
+            textButtonCanceled="Canceled";
+            textErrorTitle="Parameter error";
+            textErrorMessage="Wrong ip format xxx.xxx.xxx.xxx !";
+            textErrorMessSame="Same parameters";
+            textOkMessage="Paramètres modifiés";
+            textRefresh="Refresh: ";
+            textStateCoSuc="Connected.";
+            textStateCoNotSuc="Not connect.";
+            textSnippetSpeed="- Speed: ";
+        }
+    }
     // Création de la carte sur le port des Minimes
     @Override
     public void onMapReady(GoogleMap googleMap) {
