@@ -4,4 +4,7 @@
     <color name="colorPrimaryDark">#2196F3</color>
     <color name="colorAccent">#D81B60</color>
     <color name="colorIconMenu">#FF000000</color>
+    <color name="blank">#928E8E</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
 </resources>

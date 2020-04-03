@@ -17,6 +17,7 @@ public class Fragment_home extends Fragment{
 
 
     public Fragment_home() {
+
         // Required empty public constructor
     }
 

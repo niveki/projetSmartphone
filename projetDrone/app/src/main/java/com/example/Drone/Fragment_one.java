@@ -3,6 +3,7 @@ package com.example.Drone;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -19,8 +20,14 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -34,10 +41,15 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     private Spinner spiRefresh;
     private Button buttonStart, buttonSetting;
     private GoogleMap mMap;
-    private String currentLang = Locale.getDefault().getLanguage(), conf, quit, setting, textSettingMess, errorTitle, errorMessage, refreh, adress, stateCo;
+    private String currentLang = Locale.getDefault().getLanguage(), conf, quit, setting, textSettingMess, errorTitle, errorMessage, refreh, adress, stateCo, tSpeed;
     private ClientNMEA clientTCP;
+    private PolylineOptions cap;
+    private MarkerOptions boat;
+    private int cpt;
+
     public Fragment_one() {
         clientTCP=new ClientNMEA(this);
+        cap=new PolylineOptions().geodesic(true).color(Color.RED).width((float) 8);
     }
 
 
@@ -47,9 +59,9 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
         // Init de la vue
         final View view =  inflater.inflate(R.layout.fragment_one, container, false);
         //getters
-        textSpeed = view.findViewById(R.id.frag1_speed);
-        textLat = view.findViewById(R.id.frag1_lat);
-        textLon = view.findViewById(R.id.frag1_lon);
+        textSpeed = null;//view.findViewById(R.id.frag1_speed);
+        textLat = null;//view.findViewById(R.id.frag1_lat);
+        textLon = null;//view.findViewById(R.id.frag1_lon);
         textMes = view.findViewById(R.id.frag1_mes);
         buttonSetting = view.findViewById(R.id.frag1_boutton_setting);
         buttonStart = view.findViewById(R.id.frag1_boutton_start);
@@ -57,9 +69,9 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
         textPortFrag1 = view.findViewById(R.id.frag1_port);
         textRefreshFrag1 = view.findViewById(R.id.frag1_refresh);
         //init des textes
-        setSpeed("NA", currentLang);
-        setLatitude("NA");
-        setLongitude("NA");
+        //setSpeed("NA", currentLang);
+        //setLatitude("NA");
+        //setLongitude("NA");
         if(currentLang.equals("fr")){
             buttonSetting.setText("RÉGLAGE");
             buttonStart.setText("DÉBUT");
@@ -191,6 +203,8 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     //Méthode start
     public void start() throws ExecutionException, InterruptedException {
         buttonStart.setText("STOP");
+
+        mMap.clear();
         //clientTCP.doInBackground();
         //setLog(String.valueOf(clientTCP.doInBackground()));
         clientTCP.setConnected();
@@ -208,23 +222,68 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     public void stop(){
         if(currentLang.equals("fr")){buttonStart.setText("DÉBUT");}else {buttonStart.setText("START");}
         clientTCP.setConnected();
+        //setMessage(clientTCP.getBoolConnected(), currentLang);
         //setLog("stop");
-        setSpeed("NA", currentLang);
-        setLatitude("NA");
-        setLongitude("NA");
+        //setSpeed("NA", currentLang);
+        //setLatitude("NA");
+        //setLongitude("NA");
         //clientTCP.setConnected();
         //setMessage(clientTCP.getBoolConnected(), currentLang);
     }
 
     //methode trame et maps
     public void data(ArrayList a){
-        setLatitude(a.get(0).toString());
-        setLongitude(a.get(1).toString());
-        setSpeed(a.get(2).toString(), currentLang);
-        setLog("lat: "+a.get(0).toString());
-        setLog("lon: "+a.get(1).toString());
-        setLog("vitesse: "+a.get(2).toString());
-        setLog("-------------");
+        //get des valeurs
+        double lat = Double.parseDouble(a.get(0).toString());
+        double lon = Double.parseDouble(a.get(1).toString());
+        double speed = Double.parseDouble(a.get(2).toString());
+        int angle = (int) Double.parseDouble(a.get(3).toString());
+        //permet d'avoir 4 chiffres après la virgurle
+        DecimalFormat df = new DecimalFormat(".######");
+        //forme un objet de type LatLong
+        LatLng curentLoc = new LatLng(lat, lon);
+        //setLatitude(String.valueOf(lat));
+        //setLongitude(String.valueOf(lon));
+        //setSpeed(a.get(2).toString(), currentLang);
+        //setLog("lat: "+lat);
+        //setLog("lon: "+lon);
+        //setLog("vitesse: "+a.get(2).toString());
+        //setLog("angle: "+a.get(3).toString());
+        //Log.e("niveki", String.valueOf(i));
+        //setLog("-------------");
+        //annima la camera au point du bateau centrage et applique un zoom a la carte
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder().target(curentLoc).zoom(15).build()));
+        // create marker
+        boat = new MarkerOptions();
+        boat.position(new LatLng(lat, lon));
+        boat.title("Infos: ");
+        boat.snippet(getSnippet(currentLang, df.format(lat), df.format(lon), String.valueOf(speed), a.get(3).toString()));
+        boat.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_boat32));
+        boat.rotation(angle);
+        //on ajoute la derniere coordonée
+        cap.add(curentLoc);
+        //on nettoie la carte pour eviter davoir plusieur bateau
+        mMap.clear();
+        //on place le bateau
+        mMap.addMarker(boat);
+        //on forme le tracé
+        mMap.addPolyline(cap);
+        //permet de créer la bulle au clique (permet le retours à la ligne du snippet via un layout
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+            @Override
+            public View getInfoContents(Marker marker) {
+                View viewInfosMarker = getActivity().getLayoutInflater().inflate(R.layout.infos_marker, null);
+                TextView tvTitle=viewInfosMarker.findViewById(R.id.tv_title);
+                TextView tvSubTitle=viewInfosMarker.findViewById(R.id.tv_subtitle);
+                tvTitle.setText(boat.getTitle());
+                tvSubTitle.setText(boat.getSnippet());
+                return viewInfosMarker;
+            }
+        });
     }
 
     // Méthodes de textes
@@ -234,7 +293,9 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     public void setIPFrag1(String val){textIPFrag1.setText("IP: "+val);}
     public void setPortFrag1(int val){textPortFrag1.setText("Port: "+val);}
     public void setRafraichissementFrag1(int val, String l){if(l.equals("fr")){textRefreshFrag1.setText("Rafraichissement: "+val+"s");}else {textRefreshFrag1.setText("refresh: "+val+"s");}}
+    public String getSnippet(String l, String lat, String lon, String speed, String angle ){if (l.equals("fr"))tSpeed="- Vitesse: ";else tSpeed="- Speed: ";String a ="- Latitude: "+lat+"\n- Longitude: "+lon+"\n"+tSpeed+speed+" Km/h\n- Angle: "+angle+" °";return a;}
     public void setMessage(boolean boolCo, String l){if(l.equals("fr")){if(boolCo){stateCo="Connecté.";}else{stateCo="Non connecté.";}}else{if(boolCo){stateCo="Connected.";}else{stateCo="Not connect.";}}textMes.setText(stateCo);}
+    public void setError(String l){if (l.equals("fr"))textMes.setText("Pas de serveur !");else textMes.setText("No server !");}
     public void setLog(String v){Log.d("niveki", v);}
     public void modifParam(String ip,String port,String time){
         clientTCP.setIP(ip);
@@ -254,14 +315,11 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-        // Add a marker in Sydney, Australia, and move the camera.
-        LatLng sydney = new LatLng(46.145907, -1.165674);
-        // Permet de placer un marqueur POUR PLUS TARD /!\
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Port La Rochelle"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-        mMap.setMinZoomPreference(15.0f);
+
+        if(cap!=null){
+            mMap.addPolyline(cap);
+            //mMap.addMarker(boat);
+        }
     }
 
 }
-
-// LOG Log.d("niveki", String.valueOf(clientTCP.getREFRESH()));

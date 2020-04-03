@@ -23,6 +23,7 @@
 
         <activity
             android:name="com.example.Drone.MainActivity"
+            android:screenOrientation="portrait"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
