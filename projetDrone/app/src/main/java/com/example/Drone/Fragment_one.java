@@ -30,14 +30,13 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class Fragment_one extends Fragment implements OnMapReadyCallback {
 
-    private TextView tvSpeed, tvLat, tvLon, tvMes, tvIPFrag1, tvPortFrag1, tvRefreshFrag1, tvIPSetting, tvPortSetting, tvRefreshSetting;
+    private TextView tvMes, tvIPFrag1, tvPortFrag1, tvRefreshFrag1, tvIPSetting, tvPortSetting, tvRefreshSetting;
     private Spinner spiRefresh;
     private Button buttonStart, buttonSetting;
     private GoogleMap mMap;
@@ -93,12 +92,11 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
                 tvPortSetting.setText("Port: ");
                 tvRefreshSetting=viewSetting.findViewById(R.id.setting_text_refresh);
                 tvRefreshSetting.setText(textSettingrefresh);
-                //get
+                //get des id pour les setters
                 tvIPSetting = viewSetting.findViewById(R.id.setting_set_IP);
                 tvPortSetting = viewSetting.findViewById(R.id.setting_set_port);
                 spiRefresh=viewSetting.findViewById(R.id.setting_spin);
-
-                //set
+                //set des valeurs
                 tvIPSetting.setText(clientTCP.getIP());
                 tvPortSetting.setText(String.valueOf(clientTCP.getPORT()));
                 final ArrayList choice = new ArrayList();
@@ -107,15 +105,22 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
                 choice.add(10);
                 choice.add(15);
                 spiRefresh.setSelection(choice.indexOf(clientTCP.getREFRESH()));
-
+                //gestion grisé IP et port si client run
+                EditText editTextIP = viewSetting.findViewById(R.id.setting_set_IP);
+                EditText editTextPort = viewSetting.findViewById(R.id.setting_set_port);
+                if(clientTCP.getBoolRun()) {
+                    editTextIP.setEnabled(false);
+                    editTextPort.setEnabled(false);
+                }else{
+                    editTextIP.setEnabled(true);
+                    editTextPort.setEnabled(true);
+                }
                 //popup
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle(textSettingTitle);
                 builder.setView(viewSetting);
-
                 //bouton Confirm
                 builder.setPositiveButton(textButtonConf, new DialogInterface.OnClickListener(){
-
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         EditText textIP = ((AlertDialog) dialogInterface).findViewById(R.id.setting_set_IP);
@@ -166,10 +171,11 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
                 builder.show();
             }
         });
-        //textIPFrag1.setText(clientTCP.getIP());
+        //Set les para sur la vue principal
         setIPFrag1(clientTCP.getIP());
         setPortFrag1(clientTCP.getPORT());
         setRafraichissementFrag1(clientTCP.getREFRESH());
+        //set etat de la connection
         setMessage(clientTCP.getBoolRun());
         // création de la carte
         ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.frag1_map)).getMapAsync(this);
