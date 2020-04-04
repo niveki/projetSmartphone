@@ -41,11 +41,10 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     private Spinner spiRefresh;
     private Button buttonStart, buttonSetting;
     private GoogleMap mMap;
-    private String currentLang, buttonTextSetting, buttonTextStart, textSettingTitle, textSettingIpAdress, textSettingrefresh, textButtonConf, textButtonCanceled, textErrorTitle, textErrorMessage, textErrorMessSame, textOkMessage, textRefresh, textStateCoSuc, textStateCoNotSuc, textSnippetSpeed;
+    private String currentLang, buttonTextSetting, buttonTextStart, textSettingTitle, textSettingIpAdress, textSettingrefresh, textButtonConf, textButtonCanceled, textErrorTitle, textErrorMessage, textErrorMessSame, textOkMessage, textRefresh, textStateCoSuc, textStateCoNotSuc, textSnippetSpeed, textStartClient, textStopClient;
     private ClientNMEA clientTCP;
     private PolylineOptions cap;
     private MarkerOptions boat;
-    private int cpt;
 
     public Fragment_one() {
         clientTCP=new ClientNMEA(this);
@@ -61,19 +60,13 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
         // Init de la vue
         final View view =  inflater.inflate(R.layout.fragment_one, container, false);
         //getters
-        tvSpeed = null;//view.findViewById(R.id.frag1_speed);
-        tvLat = null;//view.findViewById(R.id.frag1_lat);
-        tvLon = null;//view.findViewById(R.id.frag1_lon);
         tvMes = view.findViewById(R.id.frag1_mes);
         buttonSetting = view.findViewById(R.id.frag1_boutton_setting);
         buttonStart = view.findViewById(R.id.frag1_boutton_start);
         tvIPFrag1 = view.findViewById(R.id.frag1_ip);
         tvPortFrag1 = view.findViewById(R.id.frag1_port);
         tvRefreshFrag1 = view.findViewById(R.id.frag1_refresh);
-        //init des textes
-        //setSpeed("NA");
-        //setLatitude("NA");
-        //setLongitude("NA");
+
         buttonSetting.setText(buttonTextSetting);
         buttonStart.setText(buttonTextStart);
 
@@ -82,13 +75,7 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 if(buttonStart.getText().equals("DÉBUT") || buttonStart.getText().equals("START")){
-                    try {
-                        start();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    start();
                 }else{
                     stop();
                 }
@@ -110,6 +97,7 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
                 tvIPSetting = viewSetting.findViewById(R.id.setting_set_IP);
                 tvPortSetting = viewSetting.findViewById(R.id.setting_set_port);
                 spiRefresh=viewSetting.findViewById(R.id.setting_spin);
+
                 //set
                 tvIPSetting.setText(clientTCP.getIP());
                 tvPortSetting.setText(String.valueOf(clientTCP.getPORT()));
@@ -182,23 +170,30 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
         setIPFrag1(clientTCP.getIP());
         setPortFrag1(clientTCP.getPORT());
         setRafraichissementFrag1(clientTCP.getREFRESH());
-        setMessage(clientTCP.getBoolConnected());
+        setMessage(clientTCP.getBoolRun());
         // création de la carte
         ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.frag1_map)).getMapAsync(this);
         //création de la vue
         return view;
     }
     //Méthode start
-    public void start() throws ExecutionException, InterruptedException {
+    public void start(){
         buttonStart.setText("STOP");
         mMap.clear();
-        clientTCP.setConnected();
-        clientTCP.run();
+        clientTCP.setRun();
+        clientTCP.runDefaut();
+        setMessage(clientTCP.getBoolRun());
+        //setLog(String.valueOf(clientTCP.getBoolRun()));
+        Toast.makeText(getContext(),textStartClient,Toast.LENGTH_LONG).show();
     }
+
     //Méthode stop
     public void stop(){
         buttonStart.setText(buttonTextStart);
-        clientTCP.setConnected();
+        clientTCP.setRun();
+        setMessage(clientTCP.getBoolRun());
+        //setLog(String.valueOf(clientTCP.getBoolRun()));
+        Toast.makeText(getContext(),textStopClient,Toast.LENGTH_LONG).show();
     }
 
     //methode trame et maps
@@ -227,7 +222,7 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
         boat = new MarkerOptions();
         boat.position(new LatLng(lat, lon));
         boat.title("Infos: ");
-        boat.snippet(getSnippet(currentLang, df.format(lat), df.format(lon), String.valueOf(speed), a.get(3).toString()));
+        boat.snippet(getSnippet(df.format(lat), df.format(lon), String.valueOf(speed), a.get(3).toString()));
         boat.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_boat32));
         boat.rotation(angle);
         //on ajoute la derniere coordonée
@@ -256,17 +251,10 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
         });
     }
 
-    // Méthodes de textes
-/*
-    public void setSpeed(String s, String l){if(l.equals("fr")){tvSpeed.setText("Vitesse: "+s+" Km/h");}else{tvSpeed.setText("speed: "+s+" Km/h");}}
-    public void setLatitude(String s){tvLat.setText("Latitude: "+s);}
-    public void setLongitude(String s){tvLon.setText("Longitude: "+s);}
-
- */
     public void setIPFrag1(String val){tvIPFrag1.setText("IP: "+val);}
     public void setPortFrag1(int val){tvPortFrag1.setText("Port: "+val);}
     public void setRafraichissementFrag1(int val){tvRefreshFrag1.setText(textRefresh+val+"s");}
-    public String getSnippet(String l, String lat, String lon, String speed, String angle ){String a ="- Latitude: "+lat+"\n- Longitude: "+lon+"\n"+textSnippetSpeed+speed+" Km/h\n- Angle: "+angle+" °";return a;}
+    public String getSnippet(String lat, String lon, String speed, String angle ){String a ="- Latitude: "+lat+"\n- Longitude: "+lon+"\n"+textSnippetSpeed+speed+" Km/h\n- Angle: "+angle+" °";return a;}
     public void setMessage(boolean boolCo){if(boolCo)tvMes.setText(textStateCoSuc);else tvMes.setText(textStateCoNotSuc);}
     public void setLog(String v){Log.d("niveki", v);}
     public void modifParam(String ip,String port,String time){
@@ -297,6 +285,8 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
             textStateCoSuc="Connecté.";
             textStateCoNotSuc="Non connecté.";
             textSnippetSpeed="- Vitesse: ";
+            textStartClient="Début";
+            textStopClient="Stop";
         }else{
             buttonTextSetting="SETTING";
             buttonTextStart="START";
@@ -308,11 +298,13 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
             textErrorTitle="Parameter error";
             textErrorMessage="Wrong ip format xxx.xxx.xxx.xxx !";
             textErrorMessSame="Same parameters";
-            textOkMessage="Paramètres modifiés";
+            textOkMessage="Changed parameters";
             textRefresh="Refresh: ";
             textStateCoSuc="Connected.";
             textStateCoNotSuc="Not connect.";
             textSnippetSpeed="- Speed: ";
+            textStartClient="Start";
+            textStopClient="Stop";
         }
     }
     // Création de la carte sur le port des Minimes
@@ -320,10 +312,8 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-
         if(cap!=null){
             mMap.addPolyline(cap);
-            //mMap.addMarker(boat);
         }
     }
 

@@ -13,8 +13,7 @@ public class SocketTCP extends AsyncTask<String, Void, String> {
     private BufferedReader br;
     private String IP;
     private String port;
-    private ClientNMEA c;
-
+    private String tagError="error";
 
     @Override
     protected String doInBackground(String... args) {
@@ -30,15 +29,9 @@ public class SocketTCP extends AsyncTask<String, Void, String> {
             //Log.d("niveki",trame);
             socket.close();
         } catch (Exception e) {
-            //c.setConnected();
-            Log.e("niveki", "error " + e.toString());
+            Log.e(tagError, "Exception SocketTCP: " + e.toString());
             return "error";
         }
         return trame;
     }
-/*
-    @Override
-    protected void onPostExecute (){
-        doInBackground();
-    }*/
 }
