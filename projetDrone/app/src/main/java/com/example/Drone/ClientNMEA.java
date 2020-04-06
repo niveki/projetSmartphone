@@ -64,12 +64,16 @@ public class ClientNMEA {
     private void initSocket(){
         try {
             String a = new SocketTCP().execute(IP, String.valueOf(PORT)).get();
-            analyseTrame(a);
+            if(!a.equals("error"))
+                analyseTrame(a);
+            else
+                setRun(false);
         }catch (ExecutionException e) {
             Log.e(tagError, "ExecutionException ClientNMEA: "+e.toString());
         }catch (InterruptedException e) {
             Log.e(tagError, "InterruptedException ClientNMEA: "+e.toString());
         }
+        //Log.e(tagError,String.valueOf(getBoolRun()));
     }
 
     public void runDefaut(){
@@ -87,7 +91,7 @@ public class ClientNMEA {
     public void setPORT(int p){PORT=p;}
     public void setIP(String ip){IP=ip;}
     public void setREFRESH(int t){REFRESH_TIME=t;}
-    public void setRun(){run=!getBoolRun();}
+    public void setRun(boolean b){run=b;}
 
     //get
     public String getIP(){return IP;}

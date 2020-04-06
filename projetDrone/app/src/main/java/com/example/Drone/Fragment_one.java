@@ -40,7 +40,7 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     private Spinner spiRefresh;
     private Button buttonStart, buttonSetting;
     private GoogleMap mMap;
-    private String currentLang, buttonTextSetting, buttonTextStart, textSettingTitle, textSettingIpAdress, textSettingrefresh, textButtonConf, textButtonCanceled, textErrorTitle, textErrorMessage, textErrorMessSame, textOkMessage, textRefresh, textStateCoSuc, textStateCoNotSuc, textSnippetSpeed, textStartClient, textStopClient;
+    private String currentLang, buttonTextSetting, buttonTextStart, textSettingTitle, textSettingIpAdress, textSettingrefresh, textButtonConf, textButtonCanceled, textErrorTitle, textErrorMessage, textErrorMessSame, textOkMessage, textRefresh, textStateCoSuc, textStateCoNotSuc, textSnippetSpeed, textStartClient, textStopClient, textErrorMessageSocket;
     private ClientNMEA clientTCP;
     private PolylineOptions cap;
     private MarkerOptions boat;
@@ -74,6 +74,7 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 if(buttonStart.getText().equals("DÉBUT") || buttonStart.getText().equals("START")){
+                    Log.d("error", "init du serveur");
                     start();
                 }else{
                     stop();
@@ -186,17 +187,21 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
     public void start(){
         buttonStart.setText("STOP");
         mMap.clear();
-        clientTCP.setRun();
+        clientTCP.setRun(true);
         clientTCP.runDefaut();
-        setMessage(clientTCP.getBoolRun());
-        //setLog(String.valueOf(clientTCP.getBoolRun()));
-        Toast.makeText(getContext(),textStartClient,Toast.LENGTH_LONG).show();
+        if(clientTCP.getBoolRun()) {
+            setMessage(clientTCP.getBoolRun());
+            Toast.makeText(getContext(), textStartClient, Toast.LENGTH_LONG).show();
+        }else{
+            buttonStart.setText(buttonTextStart);
+            Toast.makeText(getContext(), textErrorMessageSocket, Toast.LENGTH_LONG).show();
+        }
     }
 
     //Méthode stop
     public void stop(){
         buttonStart.setText(buttonTextStart);
-        clientTCP.setRun();
+        clientTCP.setRun(false);
         setMessage(clientTCP.getBoolRun());
         //setLog(String.valueOf(clientTCP.getBoolRun()));
         Toast.makeText(getContext(),textStopClient,Toast.LENGTH_LONG).show();
@@ -293,6 +298,7 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
             textSnippetSpeed="- Vitesse: ";
             textStartClient="Début";
             textStopClient="Stop";
+            textErrorMessageSocket="Serveur non initialisé";
         }else{
             buttonTextSetting="SETTING";
             buttonTextStart="START";
@@ -311,6 +317,7 @@ public class Fragment_one extends Fragment implements OnMapReadyCallback {
             textSnippetSpeed="- Speed: ";
             textStartClient="Start";
             textStopClient="Stop";
+            textErrorMessageSocket="Server not initialize";
         }
     }
     // Création de la carte sur le port des Minimes
