@@ -2,6 +2,7 @@ package com.example.Drone;
 
 
 import android.content.Context;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -20,8 +21,14 @@ import com.example.Drone.R;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.text.DecimalFormat;
 
 
 /**
@@ -33,7 +40,9 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
     private Sensor accelerometer; // gyroscope du smartphone
     private GoogleMap mMap; //map de la vue
     private MarkerOptions drone;
+    private PolylineOptions cap;
     private double latitude, longitude ,vitesse ,x, y, z ,angle = 0;
+    private DecimalFormat df = new DecimalFormat(".######");
 
 
     public Fragment_two() {
@@ -49,21 +58,21 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
 
 
         //initialisation de sensorManager et de sensor
-        capteur = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        capteur = (SensorManager)getActivity().getSystemService(Context.SENSOR_SERVICE);
         accelerometer = capteur.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         capteur.registerListener(Fragment_two.this,accelerometer,SensorManager.SENSOR_DELAY_NORMAL);
 
         //création marker drone
         if (drone == null){
             drone = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_boat32));
+            latitude = 46.145907;
+            longitude = -1.165674;
         }
         //création trajet
+        cap = new PolylineOptions().geodesic(true).color(Color.RED).width((float) 8);
 
         //bouton mode SOS
 
-        //def lat long
-        setLatitude(46.14986608208221);
-        setLongitude(-1.1737993547569658);
 
         // création de la carte
         ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.frag2_map)).getMapAsync(this);
@@ -79,9 +88,9 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
             x = sensorEvent.values[0];
             y = sensorEvent.values[1];
             z = sensorEvent.values[2];
-            Log.e("Anthony",String.valueOf(x));
-            Log.e("Anthony",String.valueOf(y));
-            Log.e("Anthony",String.valueOf(z));
+           //Log.e("Anthony",String.valueOf(x));
+           // Log.e("Anthony",String.valueOf(y));
+           // Log.e("Anthony",String.valueOf(z));
 
             //calcul trajectoire drone
             if(z >= 0 && x > 0) {
@@ -96,12 +105,42 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
                 angle = angle - y/100;
             }
 
-            setLatitude(getLatitude()+( Math.sin(angle) * (vitesse / 0.5))/1000000);
-            setLongitude(getLongitude() + (Math.cos(angle) * (vitesse / 0.5))/1000000);
-
-
+            //setLatitude(getLatitude()+( Math.sin(angle) * (vitesse / 0.5))/1000000);
+            //setLongitude(getLongitude() + (Math.cos(angle) * (vitesse / 0.5))/1000000);
+            latitude = latitude +( Math.sin(angle) * (vitesse / 0.5))/1000000;
+            longitude = longitude + (Math.cos(angle) * (vitesse / 0.5))/1000000;
         }
+        setMarker(latitude,longitude);
+    }
+    //Methode qui initialise les nouvelle donnée du marqueur selon les coordonnees calculés dans onSensorChange()
+    public void setMarker(double lat , double lon){
+        //On garde 6 chiffres après la virgule
+        String stringLatitude = df.format(lat);
+        String stringLongitude = df.format(lon);
+        //Nouvelles valeurs de latitude et longitude
+        double newLatitude = Double.parseDouble(stringLatitude);
+        double newLongitude = Double.parseDouble(stringLongitude);
 
+        //Compare avec les anciennes valeurs afin de reduire le changement de position du marqueur et éviter les crashs
+        if(newLatitude != this.getLatitude() && newLongitude != this.getLongitude()){
+            Log.e("Anthony","Passage dans le if pour updateMap");
+            updateMap(newLatitude,newLongitude);
+        }
+    }
+
+    //Mettre à jour la map avec les nouvelles données
+    public void updateMap(double newLat , double newLon){
+        LatLng curentLoc = new LatLng(newLat, newLon);
+        mMap.clear();
+        drone.position(curentLoc);
+        //drone.rotation(angle); //orienté le marqueur
+        //placer la camera sur le marqueur
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder().target(curentLoc).zoom(15).build()));
+        cap.add(curentLoc);
+        //place le bateau
+        mMap.addMarker(drone);
+        //forme le tracé
+        mMap.addPolyline(cap);
     }
 
     @Override
@@ -154,7 +193,9 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
         drone.position(new LatLng(getLatitude(), getLongitude()));
         mMap.addMarker(drone);
 
-
-
+        //cap
+        if(cap!=null){
+            mMap.addPolyline(cap);
+        }
     }
 }
