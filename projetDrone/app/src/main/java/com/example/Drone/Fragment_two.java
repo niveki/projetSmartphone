@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 
 /**
@@ -36,9 +38,11 @@ import java.text.DecimalFormat;
  */
 public class Fragment_two extends Fragment implements SensorEventListener, OnMapReadyCallback {
 
+    private String currentLang = Locale.getDefault().getLanguage(),textstop, textmarche;
     private SensorManager capteur;
     private Sensor accelerometer; // gyroscope du smartphone
     private GoogleMap mMap; //map de la vue
+    private Button stop, sos;
     private MarkerOptions drone;
     private PolylineOptions cap;
     private double latitude, longitude ,vitesse ,x, y, z ,angle = 0;
@@ -72,7 +76,24 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
         cap = new PolylineOptions().geodesic(true).color(Color.RED).width((float) 8);
 
         //bouton mode SOS
+        sos = view.findViewById(R.id.frag2_boutton_sos);
+        sos.setText("SOS");
+        sos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sos();
+            }
+        });
 
+        //bouton stop
+        stop = view.findViewById(R.id.frag2_boutton_stop);
+        stop.setText(textstop);
+        stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stop();
+            }
+        });
 
         // création de la carte
         ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.frag2_map)).getMapAsync(this);
@@ -105,25 +126,20 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
                 angle = angle - y/100;
             }
 
-            //setLatitude(getLatitude()+( Math.sin(angle) * (vitesse / 0.5))/1000000);
-            //setLongitude(getLongitude() + (Math.cos(angle) * (vitesse / 0.5))/1000000);
             latitude = latitude +( Math.sin(angle) * (vitesse / 0.5))/1000000;
             longitude = longitude + (Math.cos(angle) * (vitesse / 0.5))/1000000;
         }
-        setMarker(latitude,longitude);
-    }
-    //Methode qui initialise les nouvelle donnée du marqueur selon les coordonnees calculés dans onSensorChange()
-    public void setMarker(double lat , double lon){
         //On garde 6 chiffres après la virgule
-        String stringLatitude = df.format(lat);
-        String stringLongitude = df.format(lon);
+        String stringLatitude = df.format(latitude);
+        String stringLongitude = df.format(longitude);
+
         //Nouvelles valeurs de latitude et longitude
         double newLatitude = Double.parseDouble(stringLatitude);
         double newLongitude = Double.parseDouble(stringLongitude);
 
         //Compare avec les anciennes valeurs afin de reduire le changement de position du marqueur et éviter les crashs
         if(newLatitude != this.getLatitude() && newLongitude != this.getLongitude()){
-            Log.e("Anthony","Passage dans le if pour updateMap");
+            //Log.e("Anthony","Passage dans le if pour updateMap");
             updateMap(newLatitude,newLongitude);
         }
     }
@@ -178,6 +194,28 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
         capteur.unregisterListener(Fragment_two.this,accelerometer);
     }
 
+    public void stop(){
+        if(stop.getText().equals(textstop)){
+            stop.setText(textmarche);
+            stop.setBackgroundColor(Color.GREEN);
+            onPause();
+        }else{
+            stop.setText(textstop);
+            onResume();
+        }
+
+    }
+
+    public void sos(){
+        LatLng curentLoc = new LatLng(46.145907, -1.165674);
+        mMap.clear();
+        drone.position(curentLoc);
+        //placer la camera sur le marqueur
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder().target(curentLoc).zoom(15).build()));
+        cap.add(curentLoc);
+        //place le bateau
+        mMap.addMarker(drone);
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -196,6 +234,18 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
         //cap
         if(cap!=null){
             mMap.addPolyline(cap);
+        }
+    }
+    //function translation
+    public void setLang(String l){
+        if(l.equals("fr")){
+            textstop= "Arrêter";
+            textmarche= "Redemarrer";
+
+        }else{
+            textstop= "Stop";
+            textmarche= "Restart";
+
         }
     }
 }
