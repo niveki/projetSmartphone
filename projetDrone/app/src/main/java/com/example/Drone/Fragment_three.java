@@ -250,6 +250,7 @@ public class Fragment_three extends Fragment implements OnMapReadyCallback, Goog
 
     protected void send(){
         send.setText(textPlay);
+        simu = true;
         JSON="\n"+"{\"parcours\": {\n\t\"debug\": \"false\",\n\t\"wayPoint\":[";
         for(int i =0; i< markers.size();i++){
             JSON=JSON+"\n\t\t{\n\t\t\t\"Latitude\": \""+markers.get(i).getPosition().latitude+"\",\n\t\t\t\"Longitude\": \""+markers.get(i).getPosition().longitude+"\",\n\t\t\t\"Speed\": \""+markers.get(i).getSnippet().split(":")[1].trim()+"\"\n\t\t},";
@@ -282,21 +283,20 @@ public class Fragment_three extends Fragment implements OnMapReadyCallback, Goog
         annim();
     }
 
-    public void annim(){
-        if(index==1) {
+    public void annim() {
+        if (index == 1)
             Toast.makeText(getContext(), textSimuStart, Toast.LENGTH_LONG).show();
-            simu=true;
-        }
+
         handler = new Handler();
 
-        LatLng curentLoc = new LatLng(wayPoint.get(index-1),wayPoint.get(index));
+        LatLng curentLoc = new LatLng(wayPoint.get(index - 1), wayPoint.get(index));
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder().target(curentLoc).zoom(15).build()));
 
         boat = new MarkerOptions();
         boat.position(curentLoc);
         boat.title("Infos: ");
         //int speed= wayPoint.get(index+1);
-        boat.snippet(getSnippet(df.format(wayPoint.get(index-1)), df.format(wayPoint.get(index)), wayPoint.get(index+1)));
+        boat.snippet(getSnippet(df.format(wayPoint.get(index - 1)), df.format(wayPoint.get(index)), wayPoint.get(index + 1)));
         boat.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_boat32));
         boat.rotation(60);
         cap.add(curentLoc);
@@ -305,29 +305,32 @@ public class Fragment_three extends Fragment implements OnMapReadyCallback, Goog
 
         mMap.addMarker(boat);
         mMap.addPolyline(cap);
-        index=index+3;
-        if(index<wayPoint.size())
+        index = index + 3;
+        if (index < wayPoint.size())
             handler.postDelayed(runnableCode, REFRESH_TIME * 1000);
-        else{
+        else {
             Toast.makeText(getContext(), textSimuEnd, Toast.LENGTH_LONG).show();
-            simu=false;
-            index=1;
+            simu = false;
+            index = 1;
         }
-        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-            @Override
-            public View getInfoWindow(Marker marker) {
-                return null;
-            }
-            @Override
-            public View getInfoContents(Marker marker) {
-                View viewInfosMarker = getActivity().getLayoutInflater().inflate(R.layout.infos_marker, null);
-                TextView tvTitle=viewInfosMarker.findViewById(R.id.tv_title);
-                TextView tvSubTitle=viewInfosMarker.findViewById(R.id.tv_subtitle);
-                tvTitle.setText(boat.getTitle());
-                tvSubTitle.setText(boat.getSnippet());
-                return viewInfosMarker;
-            }
-        });
+        if (simu){
+            mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                @Override
+                public View getInfoWindow(Marker marker) {
+                    return null;
+                }
+
+                @Override
+                public View getInfoContents(Marker marker) {
+                    View viewInfosMarker = getActivity().getLayoutInflater().inflate(R.layout.infos_marker, null);
+                    TextView tvTitle = viewInfosMarker.findViewById(R.id.tv_title);
+                    TextView tvSubTitle = viewInfosMarker.findViewById(R.id.tv_subtitle);
+                    tvTitle.setText(boat.getTitle());
+                    tvSubTitle.setText(boat.getSnippet());
+                    return viewInfosMarker;
+                }
+            });
+        }
     }
     private Runnable runnableCode = new Runnable() {
         @Override

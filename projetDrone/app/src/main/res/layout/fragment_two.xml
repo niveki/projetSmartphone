@@ -5,12 +5,42 @@
     android:layout_height="match_parent"
     tools:context="com.example.Drone.Fragment_two">
 
-    <TextView
+    <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/text_two"
-        android:gravity="center"
-        android:textSize="20dp"
-        android:textColor="#000"/>
+        android:layout_height="wrap_content"
+        >
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:id="@+id/frag2_map"
+            tools:context=".MapsActivity"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_weight="2"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="150px"
+            >
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:id="@+id/frag2_boutton_stop"
+                android:layout_weight="1"
+                android:background="#FF0000"
+                android:textColor="#FFFFFF"
+                />
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:id="@+id/frag2_boutton_sos"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:textColor="#FF0000"
+                />
+        </LinearLayout>
+
+    </TableLayout>
 
 </FrameLayout>
