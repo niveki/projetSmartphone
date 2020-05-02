@@ -257,6 +257,7 @@ public class Fragment_three extends Fragment implements OnMapReadyCallback, Goog
         }
         JSON=JSON+"\n\t]\n}}";
         markers.clear();
+        Log.d("JSON", JSON);
     }
 
     protected void play(){

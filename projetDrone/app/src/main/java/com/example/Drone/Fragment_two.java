@@ -30,6 +30,8 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -45,6 +47,7 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
     private Button stop, sos;
     private MarkerOptions drone;
     private PolylineOptions cap;
+    Polyline polyline;
     private double latitude, longitude ,vitesse ,x, y, z ,angle = 0;
     private DecimalFormat df = new DecimalFormat(".######");
 
@@ -93,7 +96,7 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
         stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("niveki", "stop");
+                Log.e("anthony", "stop");
                 stop();
             }
         });
@@ -142,7 +145,6 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
 
         //Compare avec les anciennes valeurs afin de reduire le changement de position du marqueur et éviter les crashs
         if(newLatitude != this.getLatitude() && newLongitude != this.getLongitude()){
-            //Log.e("Anthony","Passage dans le if pour updateMap");
             updateMap(newLatitude,newLongitude);
         }
     }
@@ -152,14 +154,12 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
         LatLng curentLoc = new LatLng(newLat, newLon);
         mMap.clear();
         drone.position(curentLoc);
-        //drone.rotation(angle); //orienté le marqueur
         //placer la camera sur le marqueur
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder().target(curentLoc).zoom(15).build()));
         cap.add(curentLoc);
         //place le bateau
         mMap.addMarker(drone);
-        //forme le tracé
-        mMap.addPolyline(cap);
+        polyline = mMap.addPolyline(cap);
     }
 
     @Override
@@ -211,14 +211,18 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
     }
 
     public void sos(){
+        //Reset des variables latitude et longitude
+        setLatitude(46.145907);
+        setLongitude(-1.165674);
         LatLng curentLoc = new LatLng(46.145907, -1.165674);
         mMap.clear();
         drone.position(curentLoc);
         //placer la camera sur le marqueur
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder().target(curentLoc).zoom(15).build()));
-        cap.add(curentLoc);
         //place le bateau
         mMap.addMarker(drone);
+        polyline.remove();
+        cap = new PolylineOptions().geodesic(true).color(Color.RED).width((float) 8);
     }
 
     @Override
@@ -237,7 +241,8 @@ public class Fragment_two extends Fragment implements SensorEventListener, OnMap
 
         //cap
         if(cap!=null){
-            mMap.addPolyline(cap);
+            polyline = mMap.addPolyline(cap);
+            mMap.addMarker(drone);
         }
     }
     //function translation
